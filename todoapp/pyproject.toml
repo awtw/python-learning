@@ -1,0 +1,16 @@
+[project]
+name = "todoapp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "bcrypt==4.0.1",
+    "fastapi>=0.119.0",
+    "passlib>=1.7.4",
+    "pydantic>=2",
+    "python-jose[cryptography]>=3.5.0",
+    "python-multipart>=0.0.20",
+    "sqlalchemy>=2.0.44",
+    "uvicorn>=0.38.0",
+]
