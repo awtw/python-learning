@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  todoapp:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+    volumes:
+      # 持久化数据库
+      - todoapp_data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  todoapp_data:
