@@ -74,7 +74,7 @@ async def login_for_access_token(db: db_dependency, form_data: Annotated[OAuth2P
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    return {"access_token": create_access_token(user.username, user.id, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)), "token_type": "bearer"}
+    return {"access_token": create_access_token(user.username, user.id, user.role, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)), "token_type": "bearer"}
 
 
 def authenticate_user(db: db_dependency, username: str, password: str):
@@ -85,8 +85,8 @@ def authenticate_user(db: db_dependency, username: str, password: str):
         return False
     return user
 
-def create_access_token(username: str, user_id: int, expires_delta: timedelta):
-    encode = {"sub": username, "id": user_id}
+def create_access_token(username: str, user_id: int, role: str, expires_delta: timedelta):
+    encode = {"sub": username, "id": user_id, "role": role}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({"exp": expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -96,8 +96,9 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         user_id: int = payload.get("id")
-        if username is None or user_id is None:
+        role: str = payload.get("role")
+        if username is None or user_id is None or role is None:
             raise HTTPException(status_code=401, detail="Could not validate credentials")
-        return {"username": username, "id": user_id}
+        return {"username": username, "id": user_id, "role": role}
     except JWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")
